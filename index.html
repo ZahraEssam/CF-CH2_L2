@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Lesson 2.3 · Bits & Bytes — The Memory Closet | Cyber Learning SPA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #022c22;
+            font-family: 'Segoe UI', 'Tajawal', system-ui, -apple-system, 'Cairo', sans-serif;
+            color: #f0fdf4;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* Main App Container */
+        .cyber-app {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(2, 44, 34, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            box-shadow: 0 20px 35px -15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* Header */
+        .header {
+            padding: 1.2rem 2rem 0.5rem 2rem;
+            border-bottom: 1px solid rgba(52, 211, 153, 0.3);
+        }
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .lesson-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #05966930;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            color: #34d399;
+            letter-spacing: 0.5px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f0fdf4, #34d399);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        /* progress dots */
+        .dot-container {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 1rem 0 0.5rem 0;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #2c5a4f;
+            border-radius: 50%;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .dot.active {
+            background-color: #fcd34d;
+            box-shadow: 0 0 8px #fcd34d;
+            transform: scale(1.2);
+        }
+
+        /* Slide Container */
+        .slides-container {
+            min-height: 540px;
+            padding: 1.8rem 2rem;
+            position: relative;
+        }
+        .slide {
+            display: none;
+            animation: fade 0.3s ease;
+        }
+        .slide.active-slide {
+            display: block;
+        }
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(12px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* cards / glassmorph */
+        .glass-card {
+            background: rgba(6, 48, 40, 0.5);
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            margin-bottom: 1.2rem;
+        }
+        h2, h3 {
+            color: #ecfdf5;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-right: 3px solid #fcd34d;
+            padding-right: 0.8rem;
+        }
+        .tech-mono {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #011e18;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #a7f3d0;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 1rem;
+        }
+        /* bits closet grid (slide2) */
+        .bits-closet {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        .bit-cell {
+            width: 75px;
+            height: 85px;
+            background: #0a3a30;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            font-family: monospace;
+            cursor: pointer;
+            transition: 0.1s linear;
+            border: 1px solid #2dd4bf66;
+        }
+        .bit-cell.active-bit {
+            background: #2c5f4a;
+            border-color: #fcd34d;
+            box-shadow: 0 0 8px #fcd34d;
+        }
+        .shirt-icon {
+            width: 32px;
+            height: 32px;
+            background: #fcd34d;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%);
+            background: linear-gradient(145deg, #fcd34d, #fbbf24);
+        }
+        .empty-slot {
+            width: 32px;
+            height: 32px;
+            border: 2px dashed #34d399;
+            border-radius: 6px;
+            opacity: 0.7;
+        }
+        /* game matrix */
+        .bit-switch {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+        .switch-card {
+            background: #064e3b;
+            width: 80px;
+            padding: 0.7rem;
+            text-align: center;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: 0.1s;
+            border: 1px solid #34d39966;
+        }
+        .switch-card.active-switch {
+            background: #fcd34d;
+            color: #022c22;
+            border-color: white;
+            box-shadow: 0 0 12px #fcd34d;
+        }
+        .quiz-option {
+            background: #0d4e40;
+            border-radius: 1rem;
+            padding: 0.7rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.1s;
+        }
+        .quiz-option.correct {
+            background: #2e7d64;
+            border-color: #34d399;
+            box-shadow: 0 0 6px #34d399;
+        }
+        .quiz-option.wrong {
+            background: #9b4b3a;
+            border-color: #f97316;
+            animation: shake 0.2s ease-in-out 0s 2;
+        }
+        @keyframes shake {
+            0%,100%{ transform: translateX(0);}
+            25%{ transform: translateX(-4px);}
+            75%{ transform: translateX(4px);}
+        }
+        button {
+            background: #0f3b32;
+            border: 1px solid #34d399;
+            color: #ccf0e6;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #34d39930;
+            border-color: #fcd34d;
+        }
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 2rem 1.5rem 2rem;
+            gap: 1rem;
+        }
+        .nav-btn {
+            background: rgba(2,44,34,0.9);
+            padding: 0.6rem 1.6rem;
+            font-weight: bold;
+        }
+        .nav-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 1rem;
+            border-top: 1px solid #115e59;
+            color: #8bc3b0;
+        }
+        .rank-glow {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 0.5rem;
+            background: linear-gradient(145deg, #34d39930, transparent);
+            border-radius: 2rem;
+        }
+        @media (max-width: 700px) {
+            .bit-cell, .switch-card { width: 60px; height: 70px; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        input, .input-field {
+            background: #04352b;
+            border: 1px solid #34d399;
+            border-radius: 1rem;
+            padding: 0.5rem;
+            color: white;
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #2d6a5e;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+<div class="cyber-app">
+    <div class="header">
+        <div class="title-row">
+            <div class="lesson-badge">LESSON 2.3 // BITS & BYTES</div>
+            <h1>خزانة الذاكرة السيبرانية</h1>
+        </div>
+        <div class="dot-container" id="progressDots"></div>
+    </div>
+
+    <div class="slides-container" id="slidesContainer">
+        <!-- SLIDE 1 : Brain Teaser -->
+        <div class="slide" data-index="0">
+            <div class="glass-card">
+                <h2>التساؤل والفايب الأول</h2>
+                <p style="font-size:1.2rem; line-height:1.6;">"لو عندك خزانة ملابس (Closet) سبيس صغيرة فيها 8 خانات، وكل خانة إما شايلة تيشيرت واحد أو فاضية خالص.. حوّريها في دماغك كده وتفتكري تقدري تعملي كام ميكس وطقم ملابس مختلف تماماً؟"</p>
+                <button id="revealHintBtn" style="margin-top: 0.8rem;">شوف إزاي الكمبيوتر يفكر</button>
+                <div id="hintExplanation" class="tech-mono" style="margin-top: 1rem; display: none;">كل خانة تمثل بت (0/1)، عدد التركيبات = 2^8 = 256 ميكس مختلف. دي فكرة تمثيل البيانات! البت هو أصغر وحدة، وبـ 8 بت نقدر نرمز حرف واحد.</div>
+            </div>
+            <div class="glass-card"><span class="tech-mono">#Tech_Vibe</span> <span>اللي هو الكمبيوتر كله بيشتغل بالـ Binary System – النظام الثنائي.</span></div>
+        </div>
+
+        <!-- SLIDE 2 : Physical Mapping (Memory Closet) -->
+        <div class="slide" data-index="1">
+            <h2>رسم الميموري بالتدريج | The Memory Closet</h2>
+            <div class="bits-closet" id="memoryClosetGrid"></div>
+            <div class="glass-card" id="byteInfoDisplay">
+                <span class="tech-mono">القيمة الثنائية: <span id="binaryPattern">01000001</span> = <span id="decimalValue">65</span> = character '<span id="charRepresentation">A</span>'</span>
+                <p style="margin-top: 0.5rem;">8 بت = 1 بايت، البايت هو المساحة اللي بتخزن حرف زي A أو Z أو أي رمز من الـ 256可能性.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 3 : Units Matrix & Binary Logic -->
+        <div class="slide" data-index="2">
+            <h2>مصفوفة الوحدات وأسرار Base-2</h2>
+            <div class="grid-2">
+                <div class="glass-card"><strong>جدول الوحدات</strong><br>8 Bits → 1 Byte<br>1024 Bytes → 1 KB<br>1024 KB → 1 MB<br>1024 MB → 1 GB<br>1024 GB → 1 TB</div>
+                <div class="glass-card"><strong>الحجم الحقيقي (Real Life)</strong><br>رسالة واتساب: 2 KB<br>صورة سيلفي: 5 MB<br>فيلم HD: 4 GB<br>سحابة تخزين: 2 TB</div>
+            </div>
+            <div class="glass-card">
+                <p>❓ ليه الكيلو بايت بـ 1024 مش 1000 زي الحوارات العادية؟</p>
+                <p class="tech-mono">عشان الكمبيوتر شغال بنظام العد الثنائي (Base-2)، 2^10 = 1024. جديّاً يعني المبرمجين بيحبوا القوى بتاعة الـ 2.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 4 : Live Sizing Workshop (المعمل الحسابي) -->
+        <div class="slide" data-index="3">
+            <h2>المعمل الحسابي الحي</h2>
+            <div class="glass-card">
+                <label>اكتب أي كلمة أو جملة:</label>
+                <input type="text" id="liveTextInput" placeholder="مثلاً: Egypt" class="input-field">
+                <div class="tech-mono" id="liveSizeResult">0 Bytes | 0 Bits</div>
+            </div>
+            <div class="grid-2">
+                <div class="glass-card">
+                    <p><strong>التحدي الأول: كلمة "Egypt"</strong> (لاتينية)</p>
+                    <input type="number" id="challenge1Input" placeholder="عدد البايتات" class="input-field">
+                    <button id="checkChallenge1">تحقق</button>
+                    <div id="challenge1Feedback" class="tech-mono"></div>
+                </div>
+                <div class="glass-card">
+                    <p><strong>التحدي الثاني: 2 KB = كام بت؟</strong></p>
+                    <input type="number" id="challenge2Input" placeholder="bits" class="input-field">
+                    <button id="checkChallenge2">تحقق</button>
+                    <div id="challenge2Feedback" class="tech-mono"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5 : The 8-Bit Matrix Game (لعبة مهندس الذاكرة) -->
+        <div class="slide" data-index="4">
+            <h2>لعبة مهندس الذاكرة | 8-Bit Matrix</h2>
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between;"><span>الهدف (Decimal): <strong id="gameTargetValue">65</strong></span>
+                <span>المجموع الحالي: <strong id="currentSumValue">0</strong></span></div>
+                <div class="bit-switch" id="binarySwitchMatrix"></div>
+                <div id="gameStatusMsg" class="tech-mono" style="margin: 0.5rem 0;"></div>
+                <button id="newGameTargetBtn">تحدي جديد</button>
+                <button id="resetGameBtn" style="margin-right: 0.5rem;">إعادة</button>
+                <p class="tech-mono" style="margin-top: 0.7rem;">كبر دي، اضغط على البتات عشان توصل للرقم المطلوب. لو نجحت هتاخد وسام المهندس!</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 6 : Deep Quiz -->
+        <div class="slide" data-index="5">
+            <h2>كويز الفهم التراكمي</h2>
+            <div id="quizArea"></div>
+            <div class="progress-bar-bg" style="background:#2d6a5e; height:6px; border-radius:5px; margin-top:0.8rem;"><div id="quizProgressFill" style="width:0%; height:100%; background:#fcd34d; border-radius:5px;"></div></div>
+        </div>
+
+        <!-- SLIDE 7 : Scoreboard & Rank -->
+        <div class="slide" data-index="6">
+            <h2>التقرير النهائي والرتبة</h2>
+            <div class="glass-card" style="text-align:center;">
+                <div id="finalRankBadge" class="rank-glow">Storage Cadet</div>
+                <div style="margin: 1rem 0;"><span class="tech-mono">إجابات الكويز: <span id="quizScoreDisplay">0</span>/3</span> | فوز بالمصفوفة: <span id="gameWinFlagDisplay">لا</span></div>
+                <button id="resetEverythingBtn">إعادة تشغيل الرحلة</button>
+            </div>
+            <div class="glass-card" style="font-style:italic;">"سلامو عليكو، أنت كده مهندس ذاكرة حقيقي أو استكشفت الداتا كول. كمل حوارك التقني!" — Eng. Zahra Essam</div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevSlideBtn">السابق</button>
+        <button class="nav-btn" id="nextSlideBtn">التالي</button>
+    </div>
+    <footer>Eng. Zahra Essam • Cyber Memory Lab | كل حاجة بالثنائي والبت اشتغل</footer>
+</div>
+
+<script>
+    (function(){
+        // -------------- GLOBALS ------------
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const dotsContainer = document.getElementById('progressDots');
+        const prevBtn = document.getElementById('prevSlideBtn');
+        const nextBtn = document.getElementById('nextSlideBtn');
+
+        // Slide 2: memory closet state (8 bits)
+        let memoryBits = [0,1,0,0,0,0,0,1]; // 'A' pattern
+        
+        // Slide 5: game matrix bits (8 positions)
+        let gameBits = [0,0,0,0,0,0,0,0];
+        let gameTarget = 65;
+        let gameWinAchieved = false;
+        
+        // Quiz state
+        let quizAnswers = [null, null, null];
+        const quizQuestions = [
+            { text: "كم عدد البتات في 4 بايت؟", options: ["32 بت", "16 بت", "24 بت", "40 بت"], correct: 0 },
+            { text: "ليه الكمبيوتر بيستخدم 1024 بدل 1000 في وحدات التخزين؟", options: ["النظام الثنائي (2^10=1024)", "عشان النظام العشري غلط", "لأن 1024 عدد زوجي", "من تراث المبرمجين"], correct: 0 },
+            { text: "البايت الواحد يتسع لتمثيل كم قيمة مختلفة؟", options: ["256", "128", "512", "1024"], correct: 0 }
+        ];
+        
+        function updateUI() {
+            document.querySelectorAll('.dot').forEach((dot, idx) => {
+                if(idx === currentSlide) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+            prevBtn.classList.toggle('disabled', currentSlide === 0);
+            nextBtn.classList.toggle('disabled', currentSlide === totalSlides-1);
+        }
+        
+        function showSlide(index) {
+            if(index < 0) index = 0;
+            if(index >= totalSlides) index = totalSlides-1;
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active-slide', i === index);
+            });
+            currentSlide = index;
+            updateUI();
+            if(currentSlide === 6) updateScoreboardDisplay();
+            if(currentSlide === 5) updateQuizProgressBar();
+        }
+        
+        // ----- SLIDE 2: Memory Closet render & interaction
+        function renderMemoryCloset() {
+            const container = document.getElementById('memoryClosetGrid');
+            if(!container) return;
+            container.innerHTML = '';
+            memoryBits.forEach((bit, idx) => {
+                const cell = document.createElement('div');
+                cell.className = `bit-cell ${bit === 1 ? 'active-bit' : ''}`;
+                const iconDiv = document.createElement('div');
+                if(bit === 1) {
+                    const shirt = document.createElement('div');
+                    shirt.className = 'shirt-icon';
+                    iconDiv.appendChild(shirt);
+                } else {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-slot';
+                    iconDiv.appendChild(emptyDiv);
+                }
+                const textSpan = document.createElement('span');
+                textSpan.innerText = bit;
+                cell.appendChild(iconDiv);
+                cell.appendChild(textSpan);
+                cell.addEventListener('click', () => toggleBit(idx));
+                container.appendChild(cell);
+            });
+            updateByteDisplay();
+        }
+        
+        function toggleBit(index) {
+            memoryBits[index] = memoryBits[index] === 0 ? 1 : 0;
+            renderMemoryCloset();
+        }
+        
+        function updateByteDisplay() {
+            const binaryStr = memoryBits.join('');
+            const decimalVal = parseInt(binaryStr, 2);
+            let char = '';
+            if(decimalVal >= 32 && decimalVal <= 126) char = String.fromCharCode(decimalVal);
+            else char = '?';
+            document.getElementById('binaryPattern').innerText = binaryStr;
+            document.getElementById('decimalValue').innerText = decimalVal;
+            document.getElementById('charRepresentation').innerText = char;
+        }
+        
+        // ----- SLIDE 4: live text size
+        const liveInput = document.getElementById('liveTextInput');
+        const liveResultSpan = document.getElementById('liveSizeResult');
+        function updateLiveSize() {
+            let text = liveInput.value;
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(text).length;
+            const bits = bytes * 8;
+            liveResultSpan.innerText = `${bytes} Bytes | ${bits} Bits`;
+        }
+        if(liveInput) liveInput.addEventListener('input', updateLiveSize);
+        updateLiveSize();
+        
+        // Challenges
+        document.getElementById('checkChallenge1')?.addEventListener('click',()=>{
+            let val = parseInt(document.getElementById('challenge1Input').value);
+            const correct = 5;
+            const fb = document.getElementById('challenge1Feedback');
+            if(val === correct) fb.innerHTML = 'صح جداً! "Egypt" 5 حروف لاتينية = 5 بايت.';
+            else fb.innerHTML = `للأسف، الإجابة الصحيحة 5 بايت (5 حروف).`;
+        });
+        document.getElementById('checkChallenge2')?.addEventListener('click',()=>{
+            let val = parseInt(document.getElementById('challenge2Input').value);
+            const correct = 2 * 1024 * 8;
+            const fb = document.getElementById('challenge2Feedback');
+            if(val === correct) fb.innerHTML = `عاش! 2 KB = ${correct} بت (2*1024*8).`;
+            else fb.innerHTML = `غلط، 2 كيلو بايت = 16384 بت (2 × 1024 × 8).`;
+        });
+        
+        // ----- SLIDE 5: 8-bit matrix game
+        const weights = [128,64,32,16,8,4,2,1];
+        function renderGameMatrix() {
+            const matrixDiv = document.getElementById('binarySwitchMatrix');
+            if(!matrixDiv) return;
+            matrixDiv.innerHTML = '';
+            gameBits.forEach((bit, idx) => {
+                const sw = document.createElement('div');
+                sw.className = `switch-card ${bit === 1 ? 'active-switch' : ''}`;
+                sw.innerHTML = `<span class="tech-mono">${weights[idx]}</span><br>${bit}`;
+                sw.addEventListener('click', () => toggleGameBit(idx));
+                matrixDiv.appendChild(sw);
+            });
+            updateGameSum();
+        }
+        
+        function toggleGameBit(idx) {
+            if(gameWinAchieved) {
+                document.getElementById('gameStatusMsg').innerHTML = 'انت كسبت التحدي قبل كده! اضغط "تحدي جديد" عشان تلعب تاني.';
+                return;
+            }
+            gameBits[idx] = gameBits[idx] === 0 ? 1 : 0;
+            renderGameMatrix();
+        }
+        
+        function updateGameSum() {
+            let sum = 0;
+            for(let i=0;i<8;i++) if(gameBits[i]===1) sum += weights[i];
+            document.getElementById('currentSumValue').innerText = sum;
+            if(sum === gameTarget && !gameWinAchieved) {
+                gameWinAchieved = true;
+                document.getElementById('gameStatusMsg').innerHTML = 'عاش جديّاً يا هندسة! الخزانة متظبطة والداتا في السليم! فزت بالمصفوفة.';
+                document.getElementById('gameStatusMsg').style.color = '#fcd34d';
+            } else if(sum === gameTarget && gameWinAchieved) {
+                document.getElementById('gameStatusMsg').innerHTML = 'حلو! كسبت تاني بس الجائزة اتحسبت قبل كده.';
+            } else {
+                if(!gameWinAchieved) document.getElementById('gameStatusMsg').innerHTML = 'لسه مش مطابقة، كبر دي وجرب تاني.';
+            }
+        }
+        
+        function newGameTarget() {
+            gameTarget = Math.floor(Math.random() * 256);
+            document.getElementById('gameTargetValue').innerText = gameTarget;
+            gameBits.fill(0);
+            gameWinAchieved = false;
+            renderGameMatrix();
+            document.getElementById('gameStatusMsg').innerHTML = 'تحدي جديد! حاول توصل للرقم المطلوب.';
+            document.getElementById('gameStatusMsg').style.color = '#ccf0e6';
+        }
+        
+        function resetGameOnly() {
+            gameBits.fill(0);
+            gameWinAchieved = false;
+            gameTarget = Math.floor(Math.random() * 256);
+            document.getElementById('gameTargetValue').innerText = gameTarget;
+            renderGameMatrix();
+            document.getElementById('gameStatusMsg').innerHTML = 'تم إعادة اللعبة، جرب حظك!';
+        }
+        
+        document.getElementById('newGameTargetBtn')?.addEventListener('click', newGameTarget);
+        document.getElementById('resetGameBtn')?.addEventListener('click', resetGameOnly);
+        
+        // ----- SLIDE 6: Quiz
+        function buildQuiz() {
+            const quizDiv = document.getElementById('quizArea');
+            if(!quizDiv) return;
+            quizDiv.innerHTML = '';
+            quizQuestions.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.className = 'glass-card';
+                qCard.innerHTML = `<p><strong>${idx+1}. ${q.text}</strong></p>`;
+                const optsDiv = document.createElement('div');
+                q.options.forEach((opt, optIdx) => {
+                    const optEl = document.createElement('div');
+                    optEl.className = 'quiz-option';
+                    optEl.innerText = opt;
+                    optEl.dataset.qIdx = idx;
+                    optEl.dataset.optVal = optIdx;
+                    optEl.addEventListener('click', (e) => {
+                        if(quizAnswers[idx] !== undefined) return;
+                        const isCorrect = (optIdx === q.correct);
+                        if(isCorrect) {
+                            optEl.classList.add('correct');
+                            quizAnswers[idx] = true;
+                        } else {
+                            optEl.classList.add('wrong');
+                            quizAnswers[idx] = false;
+                            let rationale = '';
+                            if(idx===0) rationale = '4 بايت × 8 = 32 بت';
+                            else if(idx===1) rationale = 'لأن الكمبيوتر يعمل بنظام العد الثنائي 2^10 = 1024';
+                            else rationale = '2^8 = 256 قيمة ممكنة';
+                            const feedbackDiv = document.getElementById('quizFeedbackDynamic');
+                            if(!document.getElementById('quizFeedbackDynamic')) {
+                                const fbDiv = document.createElement('div');
+                                fbDiv.id = 'quizFeedbackDynamic';
+                                fbDiv.className = 'tech-mono';
+                                qCard.appendChild(fbDiv);
+                            }
+                            document.getElementById('quizFeedbackDynamic').innerHTML = `إجابة صحيحة: ${q.options[q.correct]} . ${rationale}`;
+                        }
+                        optsDiv.querySelectorAll('.quiz-option').forEach(btn => btn.style.pointerEvents = 'none');
+                        updateQuizProgressBar();
+                    });
+                    optsDiv.appendChild(optEl);
+                });
+                qCard.appendChild(optsDiv);
+                quizDiv.appendChild(qCard);
+            });
+        }
+        
+        function updateQuizProgressBar() {
+            const answered = quizAnswers.filter(a => a !== null).length;
+            const percent = (answered / quizQuestions.length) * 100;
+            const fill = document.getElementById('quizProgressFill');
+            if(fill) fill.style.width = percent+'%';
+        }
+        
+        function getQuizScore() {
+            return quizAnswers.filter(ans => ans === true).length;
+        }
+        
+        function updateScoreboardDisplay() {
+            const quizScore = getQuizScore();
+            const gameFlag = gameWinAchieved;
+            document.getElementById('quizScoreDisplay').innerText = `${quizScore}/3`;
+            document.getElementById('gameWinFlagDisplay').innerHTML = gameFlag ? 'نعم' : 'لا';
+            let rank = '';
+            if(quizScore >= 2 && gameFlag) rank = 'Memory Architect (مهندس الذاكرة الأسطوري)';
+            else if(quizScore >= 2 || gameFlag) rank = 'Data Explorer (مستكشف البيانات)';
+            else rank = 'Storage Cadet (متدرب التخزين)';
+            document.getElementById('finalRankBadge').innerHTML = rank;
+        }
+        
+        // Reset everything
+        function fullAppReset() {
+            memoryBits = [0,1,0,0,0,0,0,1];
+            renderMemoryCloset();
+            gameBits = [0,0,0,0,0,0,0,0];
+            gameWinAchieved = false;
+            gameTarget = 65;
+            document.getElementById('gameTargetValue').innerText = gameTarget;
+            renderGameMatrix();
+            updateGameSum();
+            quizAnswers = [null, null, null];
+            buildQuiz();
+            updateQuizProgressBar();
+            showSlide(0);
+            if(document.getElementById('challenge1Input')) document.getElementById('challenge1Input').value = '';
+            if(document.getElementById('challenge2Input')) document.getElementById('challenge2Input').value = '';
+            document.getElementById('challenge1Feedback').innerHTML = '';
+            document.getElementById('challenge2Feedback').innerHTML = '';
+            document.getElementById('liveTextInput').value = '';
+            updateLiveSize();
+            document.getElementById('gameStatusMsg').innerHTML = '';
+            const fbExist = document.getElementById('quizFeedbackDynamic');
+            if(fbExist) fbExist.innerHTML = '';
+        }
+        
+        document.getElementById('resetEverythingBtn')?.addEventListener('click', fullAppReset);
+        
+        // Slide controls
+        prevBtn.addEventListener('click', () => showSlide(currentSlide-1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide+1));
+        
+        // Brain Teaser Reveal
+        const revealBtn = document.getElementById('revealHintBtn');
+        const hintDiv = document.getElementById('hintExplanation');
+        if(revealBtn) revealBtn.addEventListener('click', () => {
+            hintDiv.style.display = hintDiv.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        function buildDots() {
+            dotsContainer.innerHTML = '';
+            for(let i=0; i<totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if(i===currentSlide) dot.classList.add('active');
+                dot.addEventListener('click', () => showSlide(i));
+                dotsContainer.appendChild(dot);
+            }
+        }
+        
+        function init() {
+            buildDots();
+            renderMemoryCloset();
+            buildQuiz();
+            renderGameMatrix();
+            newGameTarget();
+            showSlide(0);
+            updateLiveSize();
+            updateQuizProgressBar();
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>
